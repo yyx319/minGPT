@@ -193,11 +193,12 @@ class GPT(nn.Module):
         sd_hf = model_hf.state_dict()
 
         # copy while ensuring all of the parameters are aligned and match in names and shapes
-        keys = [k for k in sd_hf if not k.endswith('attn.masked_bias')] # ignore these
+        keys = [k for k in sd_hf if not k.endswith('attn.masked_bias') and not k.endswith('.attn.bias')] # ignore these (causal mask buffers)
+        sd_keys = [k for k in sd if not k.endswith('.attn.bias')] # ignore minGPT causal mask buffers
         transposed = ['attn.c_attn.weight', 'attn.c_proj.weight', 'mlp.c_fc.weight', 'mlp.c_proj.weight']
         # basically the openai checkpoints use a "Conv1D" module, but we only want to use a vanilla nn.Linear.
         # this means that we have to transpose these weights when we import them
-        assert len(keys) == len(sd)
+        assert len(keys) == len(sd_keys), f"mismatched keys: {len(keys)} hf keys vs {len(sd_keys)} mingpt keys; extra in hf: {set(keys)-set(sd_keys)}; missing from hf: {set(sd_keys)-set(keys)}"
         for k in keys:
             if any(k.endswith(w) for w in transposed):
                 # special treatment for the Conv1D weights we need to transpose
