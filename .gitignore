@@ -4,6 +4,9 @@ __pycache__/
 .env
 .pylintrc
 
+# package build artifacts
+*.egg-info/
+
 # trained model outputs
 projects/*/out/
 *.pt
