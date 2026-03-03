@@ -3,3 +3,8 @@ __pycache__/
 *.swp
 .env
 .pylintrc
+
+# trained model outputs
+projects/*/out/
+*.pt
+*.ckpt
